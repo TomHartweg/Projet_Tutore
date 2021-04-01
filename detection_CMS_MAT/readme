@@ -1,0 +1,14 @@
+#fichiers a compiler:
+#"quadriv.h" : g++ -c quadriv.h
+#"particule.h" : g++ -c particule.h
+#"particule.c"c : g++ -c particule.cc
+#"event.cc" : g++ -cevent.cc
+#"event.h" : g++ -cevent.h
+#"histogramme.cc" : g++ -c histogramme.cc
+#"histogramme.h" : g++ -c histogramme.h
+
+#fichier d'entree:
+#"parametre.in" : syntaxe (R,H,DX,DY,DZ,X,Y,Z,ctaumin,ctaumax,ctaupas)
+
+#fichier a executer:
+#"events2.cpp" g++ -o events2.exe events2.cpp
