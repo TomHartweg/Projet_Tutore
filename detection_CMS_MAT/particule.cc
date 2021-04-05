@@ -85,4 +85,13 @@ void particule::setimpulsion(double px, double py, double pz, double E){
     return test;
   }
 
+  //surcharge opérateur =
+  void particule::operator=(particule& temp_part){
+    ID=temp_part.getID();
+    mass=temp_part.getmass();
+    for (int i=0; i<4; i++){
+      impulsion[i]=temp_part.getpimpulsion(i);
+    }
+  }
+
 #endif

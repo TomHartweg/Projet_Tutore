@@ -37,6 +37,9 @@ class particule {
   //autres methodes
   bool detectCMS(double,double,double);//verifie la desintegration de la particule dans un cylindre selon z de dimension R,H pour un ctau donne
   bool detectMAT(double,double,double,double,double,double,double);//verifie la desintegration de la particule dans un pave de dimension DX DY DZ et position X Y Z pour un ctau donne
+  //surcharge opérateur =
+  void operator=(particule&);
+
 };
 
 #endif
