@@ -20,15 +20,18 @@ using namespace std;
   //constructeur par default
   event::event(){
     nevent=0;
-    for (int i=0; i<4; i++) p_part[i]=NULL;
   }
   //constructeur a partir d'un indice et de 4 adresses de particules
-  event::event(int n,particule* a, particule* b, particule* c , particule* d){
+  event::event(int n){
     nevent = n;
-    p_part[0]= a;
-    p_part[1] = b;
-    p_part[2] = c;
-    p_part[3] = d;
   }
 
+//mutateurs
+void event::addpart(particule& temp_part){
+  part.resize(part.size()+1);
+  part[part.size()-1]=temp_part;
+}
+void event::setpart(int numpart, particule& temp_part){
+  part[numpart]=temp_part;
+}
 #endif
