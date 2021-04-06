@@ -9,3 +9,5 @@
 *.out
 
 listevents
+*.lhe
+*.lhe#
