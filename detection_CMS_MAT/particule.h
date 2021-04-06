@@ -25,6 +25,7 @@ class particule {
    //constructeurs
    particule();//constucteur par default
    particule(int, vector<double> ,double); //constructeur a partir de pointeur de quadrivecteur
+   particule(int, vector<double> ,double); //constructeur a partir d'entier, vecteur, double
   //mutateurs
   void setID(int n){ID=n;};
   void setmass(double m){mass=m;};
