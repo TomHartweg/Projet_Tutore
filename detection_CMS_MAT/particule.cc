@@ -20,7 +20,9 @@ using namespace std;
   particule::particule(){
     ID=0;
     mass=0;
+    norme=0;
     impulsion.resize(4);
+    directioncar.resize(3);
     }
   //constructeur a partir de pointeur de quadrivecteur
   particule::particule(int numparticule,vector<double> P,double masse){
@@ -29,6 +31,17 @@ using namespace std;
       P.resize(4);
       impulsion=P;
       mass=masse;
+
+      double px=impulsion[0];
+      double py=impulsion[1];
+      double pz=impulsion[2];
+
+      norme=sqrt(px*px+py*py+pz*pz);
+
+      directioncar.resize(3);
+      directioncar[0]=px/norme;
+      directioncar[1]=py/norme;
+      directioncar[2]=pz/norme;
   }
 //accesseurs et mutateurs des particules
 void particule::setimpulsion(double px, double py, double pz, double E){
@@ -36,6 +49,12 @@ void particule::setimpulsion(double px, double py, double pz, double E){
   impulsion[1]=py;
   impulsion[2]=pz;
   impulsion[3]=E;
+
+  norme=sqrt(px*px+py*py+pz*pz);
+
+  directioncar[0]=px/norme;
+  directioncar[1]=py/norme;
+  directioncar[2]=pz/norme;
 }
 //autres methodes
   //calcul du facteur de Lorentz gamma de la particule
@@ -51,15 +70,12 @@ void particule::setimpulsion(double px, double py, double pz, double E){
   //test de detection de la particule par le detecteur CMS
   bool particule::detectCMS(double R, double H, double ct){
     bool test=false; //est ce que la particule se desintegre dans le cylindre
-    double px=impulsion[0];
-    double py=impulsion[1];
-    double pz=impulsion[2];
-    double norme=sqrt(px*px+py*py+pz*pz);
+
     double _gamma = gamma();
     double bg = sqrt(_gamma*_gamma-1);
-    double deplx=px/norme*bg*ct;//distance de desintegration selon x
-    double deply=py/norme*bg*ct;//distance de desintegration selon y
-    double deplz=pz/norme*bg*ct;//distance de desintegration selon z
+    double deplx=directioncar[0]*bg*ct;//distance de desintegration selon x
+    double deply=directioncar[1]*bg*ct;//distance de desintegration selon y
+    double deplz=directioncar[2]*bg*ct;//distance de desintegration selon z
     //cylindre de rayon R et hauteur H
     double rayon=sqrt(deplx*deplx+deply*deply); //distance de desintegration par rapport a Oz
     if(rayon<R & deplz<H/2){test=true;}
@@ -68,15 +84,12 @@ void particule::setimpulsion(double px, double py, double pz, double E){
   //test de detection de la particule par le detecteur MATHUSLA
   bool particule::detectMAT(double DX, double DY, double DZ,double X,double Y, double Z, double ct){
     bool test=false; //est ce que la particule se desintegre dans le volume du pave
-    double px=impulsion[0];
-    double py=impulsion[1];
-    double pz=impulsion[2];
-    double norme=sqrt(px*px+py*py+pz*pz);
+
     double _gamma = gamma();
     double bg = sqrt(_gamma*_gamma-1);
-    double deplx=px/norme*bg*ct;//distance de desintegration selon x
-    double deply=py/norme*bg*ct;//distance de desintegration selon y
-    double deplz=pz/norme*bg*ct;//distance de desintegration selon z
+    double deplx=directioncar[0]*bg*ct;//distance de desintegration selon x
+    double deply=directioncar[1]*bg*ct;//distance de desintegration selon y
+    double deplz=directioncar[2]*bg*ct;//distance de desintegration selon z
     //pave de cote DX,,DY,DZ centre en X,Y,Z
     bool testx=(deplx>X-DX/2)&(deplx<X+DX/2);
     bool testy=(deply>Y-DY/2)&(deply<Y+DY/2);
