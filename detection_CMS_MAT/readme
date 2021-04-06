@@ -1,7 +1,7 @@
 #fichiers a compiler:
 #"quadriv.h" : g++ -c quadriv.h
 #"particule.h" : g++ -c particule.h
-#"particule.c"c : g++ -c particule.cc
+#"particule.c" : g++ -c particule.cc
 #"event.cc" : g++ -cevent.cc
 #"event.h" : g++ -cevent.h
 #"histogramme.cc" : g++ -c histogramme.cc

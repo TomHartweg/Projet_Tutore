@@ -6,13 +6,11 @@
 #include <chrono>
 using namespace std;
 
-#include "quadriv.h" //Classe des quadi-impulsion = quadirv: P[0<=i<=3]
+
 #include "particule.h"//Classe des particules = particule: ID, impulsion, mass
-#include "particule.cc" //Methodes des particules
 #include "event.h" //Classe des evenements = event: nevent, part[0<=i<=3]
-#include "event.cc" //Methodes des evenements
 #include "histogramme.h" //Classe des histogrammes
-#include "histogramme.cc" //Methodes des histogrammes
+
 
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
@@ -31,9 +29,8 @@ int main() {
 	string line; //To read lines (--> count them), need to store them into a string
 
   //creation de l'evenenment
-  quadriv q0(0,0,0,0),q1(0,0,0,0),q2(0,0,0,0),q3(0,0,0,0);
-  particule part0(0,&q0,0),part1(0,&q1,0),part2(0,&q2,0),part3(0,&q3,0);
-  event currentevent(0,&part0,&part1,&part2,&part3);
+  event currentevent(0);
+  currentevent.addpart(4);
   //dimensions du detecteur CMS (en metres) par default
   double R=1,H=1;
   entree>>R>>H; //lecture des parametres du detecteur
@@ -74,7 +71,7 @@ int main() {
         //attribution ID
         double ID;
         data>>ID; //lecture
-        currentevent.getppart(i)->setID(ID);
+        currentevent.getppart(i).setID(ID);
 
         //lecture quadri-impulsion
         data.seekg(position+32); //déplacement à la position des données
@@ -84,19 +81,19 @@ int main() {
         //attribution masse
         double mass;
         data>>mass; //lecture
-        currentevent.getppart(i)->setmass(mass);
+        currentevent.getppart(i).setmass(mass);
 
         //enregistrement du quadriv
-        for( int j=0; j<4; j++) {currentevent.getppart(i)->getpimpulsion()->setcoord(j,tablect[j]);};
-        //  cout<<(currentevent.getppart(i)->gamma())<<endl;
+        currentevent.getppart(i).setimpulsion(tablect[0],tablect[1],tablect[2],tablect[3]);
+        //  cout<<(currentevent.getppart(i).gamma())<<endl;
       }
           for(double k=ctmin; k<=ctmax; k+=ctpas){
             int evdetect=0; // nombre de particules detectee durant l'evenement
             exponential_distribution<double> exp_dist (1/k);
             for(int i=0; i<4; i++){
-              if(currentevent.getppart(i)->gamma()>=1){//permet de ne sélectionner que les neutralinos
+              if(currentevent.getppart(i).gamma()>=1){//permet de ne sélectionner que les neutralinos
                 //if (currentevent.getppart(i)->detectCMS(R,H,exp_dist(generator))){evdetect++;} //detection par CMS
-                if (currentevent.getppart(i)->detectMAT(DX,DY,DZ,X,Y,Z,exp_dist(generator))){evdetect++;} //detection par MATHUSLA
+                if (currentevent.getppart(i).detectMAT(DX,DY,DZ,X,Y,Z,exp_dist(generator))){evdetect++;} //detection par MATHUSLA
               }//test + remplissage de l'histo
             }
             if(evdetect==0){histo_detect0.fill(k);}

@@ -1,0 +1,13 @@
+*.txt
+
+*.o
+
+*.exe
+
+*.dat
+
+*.out
+
+listevents
+*.lhe
+*.lhe#
