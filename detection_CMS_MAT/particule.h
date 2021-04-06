@@ -23,6 +23,7 @@ class particule {
   double mass; // masse de la particule
   double norme; //norme de l'impulsion de la particule
   std::vector<double> directioncar; //vecteur directeur de l'impulsion de la particule en coordonees cartesiennes
+  double bg; //beta*gamma
  public:
    //constructeurs
    particule();//constucteur par default
@@ -32,12 +33,13 @@ class particule {
   void setmass(double m){mass=m;};
   void setimpulsion(double,double,double,double);
   //accesseurs
-  double getpimpulsion(int i){return (impulsion[i]);};
+  double getimpulsion(int i){return (impulsion[i]);};
   double getmass(){return mass;};
   int getID(){return ID;};
   double gamma();
   double getnorme(){return norme;};
   double getdirectioncar(int i){return directioncar[i];};
+  double getbg(){return bg;};
   //autres methodes
   bool detectCMS(double,double,double);//verifie la desintegration de la particule dans un cylindre selon z de dimension R,H pour un ctau donne
   bool detectMAT(double,double,double,double,double,double,double);//verifie la desintegration de la particule dans un pave de dimension DX DY DZ et position X Y Z pour un ctau donne

@@ -26,7 +26,7 @@ public:
   event();
   //accesseurs
   int getnevent(){return(nevent);};
-  particule& getppart(int numpart){return part[numpart];};
+  particule& getpart(int numpart){return part[numpart];};
   //mutateurs
   void setnevent(int numevent){nevent=numevent;};
   void addpart(particule&);

@@ -37,7 +37,7 @@ histogramme::~histogramme(){
 
 void histogramme::fill(float dat_in){
 if((dat_in >= max) || (dat_in < min)){
-  cerr<<"histogramme : tentative de remplissage de l'histogramme avec une valeur hors bornes"<<endl;
+  //cerr<<"histogramme : tentative de remplissage de l'histogramme avec une valeur hors bornes"<<endl;
   Nerror++;
 }
 else{

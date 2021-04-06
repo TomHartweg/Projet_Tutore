@@ -23,6 +23,7 @@ using namespace std;
     norme=0;
     impulsion.resize(4);
     directioncar.resize(3);
+    bg=0;
     }
   //constructeur a partir de pointeur de quadrivecteur
   particule::particule(int numparticule,vector<double> P,double masse){
@@ -31,7 +32,7 @@ using namespace std;
       P.resize(4);
       impulsion=P;
       mass=masse;
-
+      bg=sqrt(impulsion[3]*impulsion[3]/(mass*mass)-1);
       double px=impulsion[0];
       double py=impulsion[1];
       double pz=impulsion[2];
@@ -49,6 +50,8 @@ void particule::setimpulsion(double px, double py, double pz, double E){
   impulsion[1]=py;
   impulsion[2]=pz;
   impulsion[3]=E;
+
+  bg=sqrt(impulsion[3]*impulsion[3]/(mass*mass)-1);
 
   norme=sqrt(px*px+py*py+pz*pz);
 
@@ -71,8 +74,6 @@ void particule::setimpulsion(double px, double py, double pz, double E){
   bool particule::detectCMS(double R, double H, double ct){
     bool test=false; //est ce que la particule se desintegre dans le cylindre
 
-    double _gamma = gamma();
-    double bg = sqrt(_gamma*_gamma-1);
     double deplx=directioncar[0]*bg*ct;//distance de desintegration selon x
     double deply=directioncar[1]*bg*ct;//distance de desintegration selon y
     double deplz=directioncar[2]*bg*ct;//distance de desintegration selon z
@@ -85,8 +86,6 @@ void particule::setimpulsion(double px, double py, double pz, double E){
   bool particule::detectMAT(double DX, double DY, double DZ,double X,double Y, double Z, double ct){
     bool test=false; //est ce que la particule se desintegre dans le volume du pave
 
-    double _gamma = gamma();
-    double bg = sqrt(_gamma*_gamma-1);
     double deplx=directioncar[0]*bg*ct;//distance de desintegration selon x
     double deply=directioncar[1]*bg*ct;//distance de desintegration selon y
     double deplz=directioncar[2]*bg*ct;//distance de desintegration selon z
@@ -102,8 +101,14 @@ void particule::setimpulsion(double px, double py, double pz, double E){
   void particule::operator=(particule& temp_part){
     ID=temp_part.getID();
     mass=temp_part.getmass();
+    bg=getbg();
+
     for (int i=0; i<4; i++){
-      impulsion[i]=temp_part.getpimpulsion(i);
+      impulsion[i]=temp_part.getimpulsion(i);
+    }
+    norme=temp_part.getnorme();
+    for (int i=0; i<3; i++){
+      directioncar[i]=temp_part.getdirectioncar(i);
     }
   }
 

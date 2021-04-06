@@ -6,3 +6,5 @@ event.o:
 	g++ -c event.cc
 histogramme.o:
 	g++ -c histogramme.cc
+clean:
+	rm *.o
