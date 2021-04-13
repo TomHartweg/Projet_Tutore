@@ -11,6 +11,7 @@ using namespace std;
 #include "particule.h"//Classe des particules = particule: ID, impulsion, mass
 #include "event.h" //Classe des evenements = event: nevent, part[0<=i<=3]
 #include "histogramme.h" //Classe des histogrammes
+#include "transformation.h" //transformation coordonnées cartésiennes à CMS
 
 
 //------------------------------------------------------------------------------------
@@ -98,7 +99,12 @@ int main() {
         if(currentevent.getpart(i).getmass()>=10){ //on se sert de la masse pour savoir si la particule est un neutralino (masse>=10 GeV <=> oui)
           histo_mass.fill(currentevent.getpart(i).getmass());
           for(double k=ctmin; k<=ctmax; k+=ctpas){
-            if(currentevent.getpart(i).detectMAT(DX,DY,DZ,X,Y,Z,k)==true){
+
+            exponential_distribution<float> exp_dist (1/k);
+            double c_tau=exp_dist(generator);
+
+            //TEST DE DETECTION DES PARTICULES FILLES DU NEUTRALINO PAR LE DETECTEUR MATHUSLA
+            if(currentevent.getpart(i).detectMAT(DX,DY,DZ,X,Y,Z,c_tau)==true){
               //copie des particules produites
               particule muon,electron;
               if(i==2){
@@ -112,9 +118,9 @@ int main() {
 
               if(electron.getdirectioncar(1)>0 && muon.getdirectioncar(1)>0){
                 double x,y,z;// coordonees de la particule mere i au moment de sa desintegration
-                x=k*currentevent.getpart(i).getbg()*currentevent.getpart(i).getdirectioncar(0);
-                y=k*currentevent.getpart(i).getbg()*currentevent.getpart(i).getdirectioncar(1);
-                z=k*currentevent.getpart(i).getbg()*currentevent.getpart(i).getdirectioncar(2);
+                x=c_tau*currentevent.getpart(i).getbg()*currentevent.getpart(i).getdirectioncar(0);
+                y=c_tau*currentevent.getpart(i).getbg()*currentevent.getpart(i).getdirectioncar(1);
+                z=c_tau*currentevent.getpart(i).getbg()*currentevent.getpart(i).getdirectioncar(2);
 
                 double delta_x_neutralino=X-x;//par  rapport au centre de gravite de la zone de desintegration
                 double delta_y_neutralino=Y+DY/2.0+epsilon-y; //par rapport au point le plus haut de la zone de detection
@@ -137,6 +143,8 @@ int main() {
 
                     //test du passage de l'electron a travers la zone de detection j
                     if(((abs(delta_x_electron+delta_x_neutralino)<DX/2)&(abs(delta_z_electron+delta_z_neutralino)<DZ/2)) == false){electron_detect=false;}
+                    else if(fmod(delta_x_electron+delta_x_neutralino,10)<1){electron_detect=false;}
+                    else if(fmod(delta_z_electron+delta_z_neutralino,10)<1){electron_detect=false;}
                     j++;
                   }
                 if (muon_detect){
@@ -149,6 +157,11 @@ int main() {
                   histo_detect2.fill(k);
                 }
               }
+            }
+
+            //test de detection CMS
+            if(currentevent.getpart(i).detectCMS(R,H,c_tau)==true){
+
             }
           }
         }
