@@ -7,6 +7,7 @@ set xlabel "ctau"
 #plot "part_decay.out" using 1:2
 #replot "part_decay.out" using 1:3
 plot "part_decay.out" using 1:4
+replot "part_decay.out" using 1:5
 pause -1
 set terminal png
 set output "histo_mass.png"

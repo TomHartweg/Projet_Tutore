@@ -30,8 +30,10 @@ std::vector<double> car_to_cms (std::vector<double>& vect_car){
   else {vect_cms[1] = M_PI-atan(vect_car[1]/(vect_car[0]+epsilon));}
 
   z=vect_car[2];
-  int epsilon=1;
-  vect_cms[3]=-log(sqrt((z*z)/(r*r)+1)-z/r); //pseudo-vitesse eta
+
+  vect_cms[2]=-log(sqrt((z*z)/(r*r)+1)-z/r); //pseudo-vitesse eta
+
+  return(vect_cms);
 
 }
 

@@ -53,12 +53,14 @@ int main() {
   //distib proba temps de vie
   int seed = chrono::system_clock::now().time_since_epoch().count();
   default_random_engine generator (seed);
+  uniform_real_distribution<double> unif_dist(0.0,1.0);
 
   //creation histogramme
   int Nbins = floor((ctmax-ctmin)/ctpas)+1;
   histogramme histo_detect0(ctmin-ctpas/2,ctmax+ctpas/2,Nbins);
   histogramme histo_detect1(ctmin-ctpas/2,ctmax+ctpas/2,Nbins);
   histogramme histo_detect2(ctmin-ctpas/2,ctmax+ctpas/2,Nbins);
+  histogramme histo_detect_cms(ctmin-ctpas/2,ctmax+ctpas/2,Nbins);
 
   double m_min=1.89502e+02,m_max=1.89508e+02,m_nbin=500;
   histogramme histo_mass(m_min,m_max,m_nbin);
@@ -104,6 +106,7 @@ int main() {
 
             exponential_distribution<float> exp_dist (1/k);
             double c_tau=exp_dist(generator);
+            //double c_tau=k;
 
             //TEST DE DETECTION DES PARTICULES FILLES DU NEUTRALINO PAR LE DETECTEUR MATHUSLA
             if(currentevent.getpart(i).detectMAT(DX,DY,DZ,X,Y,Z,c_tau)==true){
@@ -166,17 +169,23 @@ int main() {
               std::vector<double> coord_car_neutralino (3);
               for (int ii=0; ii<3; ii++){coord_car_neutralino[ii]=currentevent.getpart(i).getimpulsion(ii)*currentevent.getpart(i).getbg()*c_tau;} //point de desintegration du neutralino
 
-              vector<double> coord_cms_neutralino = car_to_cms(coord_car_neutralino);
-              particule muon,electron;
-                if(i==2){
-                  electron=currentevent.getpart(4);
-                  muon=currentevent.getpart(5);
-                }
-                else if (i==3){
-                  electron=currentevent.getpart(7);
-                  muon=currentevent.getpart(8);
-                }
+              vector<double> coord_cms_neutralino(3);
+              coord_cms_neutralino = car_to_cms(coord_car_neutralino);
+              if((abs(coord_cms_neutralino[2])<=2.5) && (coord_cms_neutralino[0]<=0.6)){
+                double a1,a2,a3,a4,a5,a6,d;
+                a1=-0.003775463;
+                a2=2.62108e-5;
+                a3=-1.05512e-07;
+                a4=2.28586e-10;
+                a5=-2.54327e-13;
+                a6=1.13477e-16;
 
+                d = coord_cms_neutralino[0]*1000.0;
+
+                double rand_val = unif_dist(generator);
+
+                if(rand_val < a1*d+a2*pow(d,2)+a3*pow(d,3)+a4*pow(d,4)+a5*pow(d,5)+a6*pow(d,6)+1){histo_detect_cms.fill(k);}
+              }
 
             }
           }
@@ -193,7 +202,7 @@ int main() {
 //sortie du nombre d'evenements dans lequel il y a 0,1,2 decay de particule
 histogramme_decay<<"#"<<"ctau "<<"nb_ev_ 0_decay"<<" "<<"nb_evt_1_decay"<<" "<<"nb_evt_2_decay"<<endl;
   for(int i=0;i<Nbins-1;i++){
-    histogramme_decay<<ctmin+i*ctpas<<" "<<histo_detect0.getbins(i)<<" "<<histo_detect1.getbins(i)<<" "<<histo_detect2.getbins(i)<<endl;
+    histogramme_decay<<ctmin+i*ctpas<<" "<<histo_detect0.getbins(i)<<" "<<histo_detect1.getbins(i)<<" "<<histo_detect2.getbins(i)<<" "<<histo_detect_cms.getbins(i)<<endl;
   }
 
   for(int i=0; i<m_nbin; i++){
