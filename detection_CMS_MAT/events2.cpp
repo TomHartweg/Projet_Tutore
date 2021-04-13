@@ -40,7 +40,7 @@ int main() {
   double R=1,H=1;
   entree>>R>>H; //lecture des parametres du detecteur
   //dimensions du detecteur MATHUSLA
-  double DX,DY,DZ,X,Y,Z,epsilon;
+  double DX,DY,DZ,X,Y,Z,epsilon; //longueur,hauteur,largeur, position x y z, hauteur de la bande de detection
   entree>>DX>>DY>>DZ>>X>>Y>>Z>>epsilon;
   //bornes de ct en m et pas par default
   double ctmin=0;
@@ -120,25 +120,34 @@ int main() {
                 double delta_y_neutralino=Y+DY/2.0+epsilon-y; //par rapport au point le plus haut de la zone de detection
                 double delta_z_neutralino=Z-z;//par  rapport au centre de gravite de la zone de desintegration
 
-                //decalages des particules filles par rapport au point de desintegration du neutralino au moment de passer a l'horizontale des detecteurs
-                double delta_x_electron=delta_y_neutralino/electron.getdirectioncar(1)*electron.getdirectioncar(0);
-                double delta_z_electron=delta_y_neutralino/electron.getdirectioncar(1)*electron.getdirectioncar(2);
-                double delta_x_muon=delta_y_neutralino/muon.getdirectioncar(1)*muon.getdirectioncar(0);
-                double delta_z_muon=delta_y_neutralino/muon.getdirectioncar(1)*muon.getdirectioncar(2);
 
-                bool muon_detect=false,electron_detect=false;
+                bool muon_detect=true,electron_detect=true;
+                int j=0;
+                while((muon_detect||electron_detect) && j<5){ //boucle sur les cinqs plans de détection
+                    //decalages des particules filles par rapport au point de desintegration du neutralino au moment de passer a l'horizontale des detecteurs
+                    double delta_x_electron=(delta_y_neutralino-j*epsilon/4)/electron.getdirectioncar(1)*electron.getdirectioncar(0);
+                    double delta_z_electron=(delta_y_neutralino-j*epsilon/4)/electron.getdirectioncar(1)*electron.getdirectioncar(2);
+                    double delta_x_muon=(delta_y_neutralino-j*epsilon/4)/muon.getdirectioncar(1)*muon.getdirectioncar(0);
+                    double delta_z_muon=(delta_y_neutralino-j*epsilon/4)/muon.getdirectioncar(1)*muon.getdirectioncar(2);
 
-                if((delta_x_muon+delta_x_neutralino>-DX/2)&(delta_x_muon+delta_x_neutralino<DX/2)&(delta_z_muon+delta_z_neutralino<DZ/2)&(delta_z_muon+delta_z_neutralino<DZ/2)){
+                  //test du passage du muon a travers la zone de detection j
+                    if(((abs(delta_x_muon+delta_x_neutralino)<DX/2)&(abs(delta_z_muon+delta_z_neutralino)<DZ/2)) == false){muon_detect=false;}
+                    else if(fmod(delta_x_muon+delta_x_neutralino,10)<1){muon_detect=false;}
+                    else if(fmod(delta_z_muon+delta_z_neutralino,10)<1){muon_detect=false;}
+
+                    //test du passage de l'electron a travers la zone de detection j
+                    if(((abs(delta_x_electron+delta_x_neutralino)<DX/2)&(abs(delta_z_electron+delta_z_neutralino)<DZ/2)) == false){electron_detect=false;}
+                    j++;
+                  }
+                if (muon_detect){
                   histo_detect0.fill(k);
-                  muon_detect=true;
-                }//test du passage du muon a travers toute la zone de detection
-                if((delta_x_electron+delta_x_neutralino>-DX/2)&(delta_x_electron+delta_x_neutralino<DX/2)&(delta_z_electron+delta_z_neutralino<DZ/2)&(delta_z_electron+delta_z_neutralino<DZ/2)){
+                }
+                if (electron_detect){
                   histo_detect1.fill(k);
-                  electron_detect=true;
-                }//test du passage de l'electron a travers toute la zone de detection
-                if(muon_detect && electron_detect){histo_detect2.fill(k);
-                }//test du passage du muon et de l'electron a travers toute la zone de detection
-
+                }
+                if(electron_detect && muon_detect){
+                  histo_detect2.fill(k);
+                }
               }
             }
           }

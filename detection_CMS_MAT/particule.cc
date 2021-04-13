@@ -93,6 +93,7 @@ void particule::setimpulsion(double px, double py, double pz, double E){
     bool testx=(deplx>X-DX/2)&(deplx<X+DX/2);
     bool testy=(deply>Y-DY/2)&(deply<Y+DY/2);
     bool testz=(deplz>Z-DZ/2)&(deplz<Z+DZ/2);
+    
     if(testx&testy&testz){test=true;}
     return test;
   }
