@@ -11,11 +11,6 @@
 using namespace std;
 
 
-#ifndef FONCTION_H
-#define FONCTION_H
-std::vector<double> car_to_cms(std::vector<double>&);
-
-#endif
 std::vector<double> car_to_cms (std::vector<double>&);
 
 #endif

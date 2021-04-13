@@ -11,7 +11,7 @@ using namespace std;
 #include "particule.h"//Classe des particules = particule: ID, impulsion, mass
 #include "event.h" //Classe des evenements = event: nevent, part[0<=i<=3]
 #include "histogramme.h" //Classe des histogrammes
-#include "transformation.h" //transformation coordonnées cartésiennes à CMS
+#include "fonctions.h" //transformation coordonnées cartésiennes à CMS
 
 
 //------------------------------------------------------------------------------------
@@ -53,8 +53,8 @@ int main() {
   //distib proba temps de vie
   int seed = chrono::system_clock::now().time_since_epoch().count();
   default_random_engine generator (seed);
-  //creation histogramme
 
+  //creation histogramme
   int Nbins = floor((ctmax-ctmin)/ctpas)+1;
   histogramme histo_detect0(ctmin-ctpas/2,ctmax+ctpas/2,Nbins);
   histogramme histo_detect1(ctmin-ctpas/2,ctmax+ctpas/2,Nbins);
@@ -73,6 +73,7 @@ int main() {
       currentevent.setnevent(n_pts) ;
       int position; //variable pour la lecture
 
+      //LECTURE DES PARTICULES ET CREATION DE L'EVENEMENT
       for (int i=0 ; i<10 ; i++){ // i = numéro de la particule
         getline(data,line); //saut d'une ligne
         position = data.tellg(); //enregistrement de la position du lecteur
@@ -95,6 +96,7 @@ int main() {
         currentevent.getpart(i).setimpulsion(tablect[0],tablect[1],tablect[2],tablect[3]);
         //  cout<<(currentevent.getpart(i).gamma())<<endl;
       }
+
       for(int i=0; i<10; i++){ // i= numero de la particule dans l'evenement
         if(currentevent.getpart(i).getmass()>=10){ //on se sert de la masse pour savoir si la particule est un neutralino (masse>=10 GeV <=> oui)
           histo_mass.fill(currentevent.getpart(i).getmass());
@@ -159,8 +161,22 @@ int main() {
               }
             }
 
-            //test de detection CMS
+            //TEST DE DETECTION DES PARTICULES FILLES DU NEUTRALINO PAR LE DETECTEUR CMS
             if(currentevent.getpart(i).detectCMS(R,H,c_tau)==true){
+              std::vector<double> coord_car_neutralino (3);
+              for (int ii=0; ii<3; ii++){coord_car_neutralino[ii]=currentevent.getpart(i).getimpulsion(ii)*currentevent.getpart(i).getbg()*c_tau;} //point de desintegration du neutralino
+
+              vector<double> coord_cms_neutralino = car_to_cms(coord_car_neutralino);
+              particule muon,electron;
+                if(i==2){
+                  electron=currentevent.getpart(4);
+                  muon=currentevent.getpart(5);
+                }
+                else if (i==3){
+                  electron=currentevent.getpart(7);
+                  muon=currentevent.getpart(8);
+                }
+
 
             }
           }
