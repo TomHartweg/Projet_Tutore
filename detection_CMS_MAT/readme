@@ -1,14 +1,9 @@
-#fichiers a compiler:
-#"quadriv.h" : g++ -c quadriv.h
-#"particule.h" : g++ -c particule.h
-#"particule.c" : g++ -c particule.cc
-#"event.cc" : g++ -cevent.cc
-#"event.h" : g++ -cevent.h
-#"histogramme.cc" : g++ -c histogramme.cc
-#"histogramme.h" : g++ -c histogramme.h
+#makefile:
+  #make all = compile tous les fichires non compilés puis le "events2.cpp"
+  #make clean = delete tous les .o
 
 #fichier d'entree:
-#"parametre.in" : syntaxe (R,H,DX,DY,DZ,X,Y,Z,ctaumin,ctaumax,ctaupas)
+#"parametre.in" : syntaxe (R,H,DX,DY,DZ,X,Y,Z,epsilon,ctaumin,ctaumax,ctaupas)
 
 #fichier a executer:
 #"events2.cpp" g++ -o events2.exe events2.cpp

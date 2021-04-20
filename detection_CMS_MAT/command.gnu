@@ -5,7 +5,7 @@ set ylabel "effectif"
 #plot "histogramme_mass.out" using 1:2
 set xlabel "ctau"
 #plot "part_decay.out" using 1:2
-#plot "part_decay.out" using 1:3
+#replot "part_decay.out" using 1:3
 plot "part_decay2.out" using 1:2
 pause -1
 set terminal png
