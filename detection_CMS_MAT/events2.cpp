@@ -24,7 +24,7 @@ int main() {
 
 //récupération données
   ifstream entree("parametre.in");
-  ifstream data("/media/sf_VM_partag/unweighted_events.lhe");
+  ifstream data("unweighted_events.lhe");
   ofstream histogramme_decay("part_decay.out");
   ofstream histogramme_decay2("part_decay2.out");
   ofstream histogramme_mass("histogramme_mass.out");
