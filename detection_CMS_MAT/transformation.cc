@@ -20,7 +20,7 @@ std::vector<double> car_to_cms (std::vector<double>& vect_car){
   }
   std::vector<double> vect_cms(3);//creation du vecteur dans la base CMS
   double r,z;
-  double epsilon=10e-10;//ajout de epsilon pour eviter les divisions par 0
+  double epsilon=1e-10;//ajout de epsilon pour eviter les divisions par 0
   r=epsilon+sqrt(vect_car[0]*vect_car[0]+vect_car[1]*vect_car[1]);
   vect_cms[0]=r; //distance au faisceau rho
 
