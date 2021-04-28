@@ -8,6 +8,8 @@
 
 *.out
 
+*.png
+
 listevents
 *.lhe
 *.lhe#
