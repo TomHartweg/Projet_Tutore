@@ -74,9 +74,9 @@ int main(int argc, char** argv) {
     clock_t t_init_run = clock();
 
     cout<<"run n°"<<run<<endl;
-    string nom_du_fichier = "DATAs/donnees/part_decay_"+to_string(run)+".out";
+    string nom_du_fichier_sortie = "DATAs/donnees/part_decay_"+to_string(run)+".out";
     //string nom_du_fichier = "test_event_out.txt";
-    histogramme_decay.open(nom_du_fichier, ifstream::out);
+    histogramme_decay.open(nom_du_fichier_sortie, ifstream::out);
 
     //distrib proba temps de vie
     int seed = chrono::system_clock::now().time_since_epoch().count();
@@ -84,27 +84,26 @@ int main(int argc, char** argv) {
     uniform_real_distribution<double> unif_dist(0.0,1.0);
     exponential_distribution<float> exp_dist (1);
 
-    //creation histogramme
+    //creation histogrammes
     int Nbins = floor((ctmax-ctmin)/ctpas)+1;
-    histogramme histo_detect_mat(ctmin-ctpas/2,ctmax+ctpas/2,Nbins);
-    histogramme histo_detect_cms(ctmin-ctpas/2,ctmax+ctpas/2,Nbins);
+    histogramme histo_detect_mat(ctmin-ctpas/2,ctmax+ctpas/2,Nbins); //histogramme du nombre de detection MATHUSLA en fonction de ctau
+    histogramme histo_detect_cms(ctmin-ctpas/2,ctmax+ctpas/2,Nbins); //histogramme du nombre de detection CMS/trajectographe en fonction de ctau
+    histogramme histo_detect_cms_muon(ctmin-ctpas/2,ctmax+ctpas/2,Nbins); //histogramme du nombre de detection CMS/chambres_muon en fonction de ctau
 
     double m_min=1e+02,m_max=2e+02,m_nbin=500;
-    histogramme histo_mass(m_min,m_max,m_nbin);
+    histogramme histo_mass(m_min,m_max,m_nbin); //pour la masse -> breit-wigner
 
 
 
-    ifstream data;
+    ifstream data; //stream pour la lecture des données provenants du simulateur
 
-    n_pts = 0;
+    n_pts = 0; //réinitialisation du nombre d'évènement
     for (int num_dat=0; num_dat<4; num_dat++){
 
       cout<<"lecture du fichier n°"<<num_dat<<endl;
+      string nom_du_fichier_entree = "unweighted_events_" + to_string(num_dat) + ".lhe";
 
-      if(num_dat==0){data.open("unweighted_events_0.lhe", ifstream::in);}
-      else if(num_dat==1){data.open("unweighted_events_1.lhe", ifstream::in);}
-      else if(num_dat==2){data.open("unweighted_events_2.lhe", ifstream::in);}
-      else if(num_dat==3){data.open("unweighted_events_3.lhe", ifstream::in);}
+      data.open(nom_du_fichier_entree, ifstream::in);
 
       data.clear();
     	data.seekg(0, ios::beg);
