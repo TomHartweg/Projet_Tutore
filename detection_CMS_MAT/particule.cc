@@ -45,7 +45,7 @@ using namespace std;
       directioncar[2]=pz/norme;
   }
 //accesseurs et mutateurs des particules
-void particule::setimpulsion(double px, double py, double pz, double E){
+void particule::setimpulsion(double& px, double& py, double& pz, double& E){
   impulsion[0]=px;
   impulsion[1]=py;
   impulsion[2]=pz;
@@ -70,30 +70,34 @@ void particule::setimpulsion(double px, double py, double pz, double E){
       return 0;
     }
   }
-  //test de detection de la particule par le detecteur CMS
+  //test de desintegration de la particule dans le detecteur CMS
   bool particule::detectCMS(double R, double H, double ct){
     bool test=false; //est ce que la particule se desintegre dans le cylindre
 
-    double deplx=directioncar[0]*bg*ct;//distance de desintegration selon x
-    double deply=directioncar[1]*bg*ct;//distance de desintegration selon y
-    double deplz=directioncar[2]*bg*ct;//distance de desintegration selon z
+    double bgct = bg*ct;
+
+    double deplx=directioncar[0]*bgct;//distance de desintegration selon x
+    double deply=directioncar[1]*bgct;//distance de desintegration selon y
+    double deplz=directioncar[2]*bgct;//distance de desintegration selon z
     //cylindre de rayon R et hauteur H
     double rayon=sqrt(deplx*deplx+deply*deply); //distance de desintegration par rapport a Oz
     if(rayon<R & deplz<H/2){test=true;}
     return test;
   }
-  //test de detection de la particule par le detecteur MATHUSLA
+  //test de desintegration de la particule dans le detecteur MATHUSLA
   bool particule::detectMAT(double DX, double DY, double DZ,double X,double Y, double Z, double ct){
     bool test=false; //est ce que la particule se desintegre dans le volume du pave
 
-    double deplx=directioncar[0]*bg*ct;//distance de desintegration selon x
-    double deply=directioncar[1]*bg*ct;//distance de desintegration selon y
-    double deplz=directioncar[2]*bg*ct;//distance de desintegration selon z
+    double bgct = bg*ct;
+
+    double deplx=directioncar[0]*bgct;//distance de desintegration selon x
+    double deply=directioncar[1]*bgct;//distance de desintegration selon y
+    double deplz=directioncar[2]*bgct;//distance de desintegration selon z
     //pave de cote DX,,DY,DZ centre en X,Y,Z
     bool testx=(deplx>X-DX/2)&(deplx<X+DX/2);
     bool testy=(deply>Y-DY/2)&(deply<Y+DY/2);
     bool testz=(deplz>Z-DZ/2)&(deplz<Z+DZ/2);
-    
+
     if(testx&testy&testz){test=true;}
     return test;
   }

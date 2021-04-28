@@ -29,17 +29,17 @@ class particule {
    particule();//constucteur par default
    particule(int, vector<double> ,double); //constructeur a partir d'entier, vecteur, double
   //mutateurs
-  void setID(int n){ID=n;};
-  void setmass(double m){mass=m;};
-  void setimpulsion(double,double,double,double);
+  void setID(int& n){ID=n;};
+  void setmass(double& m){mass=m;};
+  void setimpulsion(double&,double&,double&,double&);
   //accesseurs
-  double getimpulsion(int i){return (impulsion[i]);};
-  double getmass(){return mass;};
-  int getID(){return ID;};
+  const double& getimpulsion(int i){return (impulsion[i]);};
+  const double& getmass(){return mass;};
+  const int& getID(){return ID;};
   double gamma();
-  double getnorme(){return norme;};
-  double getdirectioncar(int i){return directioncar[i];};
-  double getbg(){return bg;};
+  const double& getnorme(){return norme;};
+  const double& getdirectioncar(int i){return directioncar[i];};
+  const double& getbg(){return bg;};
   //autres methodes
   bool detectCMS(double,double,double);//verifie la desintegration de la particule dans un cylindre selon z de dimension R,H pour un ctau donne
   bool detectMAT(double,double,double,double,double,double,double);//verifie la desintegration de la particule dans un pave de dimension DX DY DZ et position X Y Z pour un ctau donne
