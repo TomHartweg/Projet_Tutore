@@ -325,6 +325,8 @@ int main(int argc, char** argv) {
    double t_cpu = (float)(t_final - t_init) / CLOCKS_PER_SEC;
    cout<<"temps de run du run en cours: "<<t_cpu_run<<endl;
    cout<<"temps de run total: "<<t_cpu<<endl;
+
+   histogramme_decay.close();
  }
 
  return 0;
