@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
         {
           //nombre d'évènement
           n_pts++;  //compte nombre d'évènement;
-          currentevent.setnevent(n_pts) ;
+          //currentevent.setnevent(n_pts) ;
           int position; //variable pour la lecture
 
           //LECTURE DES PARTICULES ET REMPLISSAGE DE L'EVENEMENT
@@ -148,7 +148,7 @@ int main(int argc, char** argv) {
               //histo_mass.fill(currentevent.getpart(i).getmass());
 
                 double c_tau_norm=exp_dist(generator);
-
+                //double c_tau_norm = 1;
 
                 for(double k=ctmin; k<=ctmax; k+=ctpas){
                   double c_tau = c_tau_norm*k;
@@ -230,12 +230,12 @@ int main(int argc, char** argv) {
 
                     double rand_val = unif_dist(generator);
 
-                    if(rand_val < a1*d+a2*pow(d,2)+a3*pow(d,3)+a4*pow(d,4)+a5*pow(d,5)+a6*pow(d,6)+1){histo_detect_cms.fill(k);}
+                    if(rand_val < 1+d*(a1+d*(a2+d*(a3+d*(a4+d*(a5+d*a6)))))){histo_detect_cms.fill(k);}
                   }
                 }
 
                 //TEST DE DETECTION DES PARTICULES FILLES DU NEUTRALINO PAR LE SYSTEME A MUON DE CMS
-                
+
               }
             }
           }
