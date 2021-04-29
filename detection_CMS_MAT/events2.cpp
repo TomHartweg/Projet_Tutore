@@ -61,11 +61,16 @@ int main(int argc, char** argv) {
 
 
   //dimensions du detecteur CMS (en metres) par default
+  //trajectographe
   double R=1,H=1;
-  entree>>R>>H; //lecture des parametres du detecteur
+  //système à muon
+  double R_muon, H_muon;
+  entree>>R>>H>>R_muon>>H_muon; //lecture des parametres du detecteur
+
   //dimensions du detecteur MATHUSLA
   double DX,DY,DZ,X,Y,Z,epsilon; //longueur,hauteur,largeur, position x y z, hauteur de la bande de detection
   entree>>DX>>DY>>DZ>>X>>Y>>Z>>epsilon;
+
   //bornes de ct en m et pas par default
   double ctmin=0;
   double ctmax=0.1;
@@ -92,6 +97,7 @@ int main(int argc, char** argv) {
 
     //creation histogrammes
     histogramme histo_detect_mat(ctmin-ctpas/2,ctmax+ctpas/2,Nbins); //histogramme du nombre de detection MATHUSLA en fonction de ctau
+    histogramme histo_detect_mat_simple(ctmin-ctpas/2,ctmax+ctpas/2,Nbins); //histogramme du nombre de detection MATHUSLA_simple en fonction de ctau
     histogramme histo_detect_cms(ctmin-ctpas/2,ctmax+ctpas/2,Nbins); //histogramme du nombre de detection CMS/trajectographe en fonction de ctau
     histogramme histo_detect_cms_muon(ctmin-ctpas/2,ctmax+ctpas/2,Nbins); //histogramme du nombre de detection CMS/chambres_muon en fonction de ctau
 
@@ -147,15 +153,102 @@ int main(int argc, char** argv) {
             if(currentevent.getpart(i).getID() == 1000023){ //pour seulement sélectionner les neutralinos
               //histo_mass.fill(currentevent.getpart(i).getmass());
 
-                double c_tau_norm=exp_dist(generator);
-                //double c_tau_norm = 1;
+              double c_tau_norm=exp_dist(generator);
+              //double c_tau_norm = 1;
 
-                for(double k=ctmin; k<=ctmax; k+=ctpas){
-                  double c_tau = c_tau_norm*k;
-                  //double c_tau=k;
+              for(double k=ctmin; k<=ctmax; k+=ctpas){
+                double c_tau = c_tau_norm*k;
+                //double c_tau=k;
 
-                  //TEST DE DETECTION DES PARTICULES FILLES DU NEUTRALINO PAR LE DETECTEUR MATHUSLA
-                  if(currentevent.getpart(i).detectMAT(DX,DY,DZ,X,Y,Z,c_tau)==true){
+                //TEST DE DETECTION DES PARTICULES FILLES DU NEUTRALINO PAR LE DETECTEUR MATHUSLA
+                if(currentevent.getpart(i).detectMAT(DX,DY,DZ,X,Y,Z,c_tau)==true){
+                  //copie des particules produites
+                  particule muon1,muon2;
+                  if(i==2){
+                    muon2=currentevent.getpart(4);
+                    muon1=currentevent.getpart(5);
+                  }
+                  else if (i==3){
+                    muon2=currentevent.getpart(7);
+                    muon1=currentevent.getpart(8);
+                  }
+
+                  if(muon2.getdirectioncar(1)>0 && muon1.getdirectioncar(1)>0){
+                    double x,y,z;// coordonees de la particule mere i au moment de sa desintegration
+                    x=c_tau*currentevent.getpart(i).getbg()*currentevent.getpart(i).getdirectioncar(0);
+                    y=c_tau*currentevent.getpart(i).getbg()*currentevent.getpart(i).getdirectioncar(1);
+                    z=c_tau*currentevent.getpart(i).getbg()*currentevent.getpart(i).getdirectioncar(2);
+
+                    double delta_x_neutralino=X-x;//par  rapport au centre de gravite de la zone de desintegration
+                    double delta_y_neutralino=Y+DY/2.0+epsilon-y; //par rapport au point le plus haut de la zone de detection
+                    double delta_z_neutralino=Z-z;//par  rapport au centre de gravite de la zone de desintegration
+
+
+                    bool muon1_detect=true,muon2_detect=true;
+                    int j=0;
+                    double muon1x,muon1y,muon1z, muon2x,muon2y,muon2z;
+                    muon1x = muon1.getdirectioncar(0);
+                    muon1y = muon1.getdirectioncar(1);
+                    muon1z = muon1.getdirectioncar(2);
+                    muon2x = muon2.getdirectioncar(0);
+                    muon2y = muon2.getdirectioncar(1);
+                    muon2z = muon2.getdirectioncar(2);
+
+                    while((muon1_detect||muon2_detect) && j<5){ //boucle sur les cinqs plans de détection
+                        //decalages des particules filles par rapport au point de desintegration du neutralino au moment de passer a l'horizontale des detecteurs
+                        double dist_neutra_plan = (delta_y_neutralino-j*epsilon/4);
+
+                        double delta_x_muon2=dist_neutra_plan/muon2y*muon2x;
+                        double delta_z_muon2=dist_neutra_plan/muon2y*muon2z;
+                        double delta_x_muon1=dist_neutra_plan/muon1y*muon1x;
+                        double delta_z_muon1=dist_neutra_plan/muon1y*muon1z;
+
+                      //test du passage du muon1 a travers la zone de detection j
+                        if(((abs(delta_x_muon1+delta_x_neutralino)<DX/2)&(abs(delta_z_muon1+delta_z_neutralino)<DZ/2)) == false){muon1_detect=false;}
+                        else if(fmod(delta_x_muon1+delta_x_neutralino,10)<1){muon1_detect=false;}
+                        else if(fmod(delta_z_muon1+delta_z_neutralino,10)<1){muon1_detect=false;}
+
+                        //test du passage du muon2 a travers la zone de detection j
+                        if(((abs(delta_x_muon2+delta_x_neutralino)<DX/2)&(abs(delta_z_muon2+delta_z_neutralino)<DZ/2)) == false){muon2_detect=false;}
+                        else if(fmod(delta_x_muon2+delta_x_neutralino,10)<1){muon2_detect=false;}
+                        else if(fmod(delta_z_muon2+delta_z_neutralino,10)<1){muon2_detect=false;}
+                        j++;
+                      }
+                    if(muon2_detect && muon1_detect){
+                      histo_detect_mat.fill(k);
+                    }
+                    histo_detect_mat_simple.fill(k);
+                  }
+
+                }
+
+                //TEST DE DETECTION DES PARTICULES FILLES DU NEUTRALINO PAR CMS
+                if(currentevent.getpart(i).detectCMS(R_muon,H_muon,c_tau)==true){
+                  std::vector<double> coord_car_neutralino (3);
+                  for (int ii=0; ii<3; ii++){coord_car_neutralino[ii]=currentevent.getpart(i).getdirectioncar(ii)*currentevent.getpart(i).getbg()*c_tau;} //point de desintegration du neutralino
+
+                  vector<double> coord_cms_neutralino(3);
+                  coord_cms_neutralino = car_to_cms(coord_car_neutralino);
+                  double eta=abs(coord_cms_neutralino[2]);
+
+                  //test trajectographe
+                  bool pt_mort=((eta<=1.5) || (eta>=1.7)); //exclu les particules se desintegrant dans le point mort du CMS
+                  if((eta<=2.5) && (coord_cms_neutralino[0]<=0.6) && pt_mort==true){
+                    double a1,a2,a3,a4,a5,a6,d;
+                    a1=-0.003775463;
+                    a2=2.62108e-5;
+                    a3=-1.05512e-07;
+                    a4=2.28586e-10;
+                    a5=-2.54327e-13;
+                    a6=1.13477e-16;
+
+                    d = coord_cms_neutralino[0]*1000.0; //coordonnée radiale en mm
+
+                    double rand_val = unif_dist(generator);
+
+                    if(rand_val < 1+d*(a1+d*(a2+d*(a3+d*(a4+d*(a5+d*a6))))) && d<=600){histo_detect_cms.fill(k);}
+                  }
+                  if(eta <= 2.4){
                     //copie des particules produites
                     particule muon1,muon2;
                     if(i==2){
@@ -167,75 +260,18 @@ int main(int argc, char** argv) {
                       muon1=currentevent.getpart(8);
                     }
 
-                    if(muon2.getdirectioncar(1)>0 && muon1.getdirectioncar(1)>0){
-                      double x,y,z;// coordonees de la particule mere i au moment de sa desintegration
-                      x=c_tau*currentevent.getpart(i).getbg()*currentevent.getpart(i).getdirectioncar(0);
-                      y=c_tau*currentevent.getpart(i).getbg()*currentevent.getpart(i).getdirectioncar(1);
-                      z=c_tau*currentevent.getpart(i).getbg()*currentevent.getpart(i).getdirectioncar(2);
+                    double P_T1,P_T2;
+                    P_T1 = sqrt(muon1.getimpulsion(0)*muon1.getimpulsion(0)+muon1.getimpulsion(1)*muon1.getimpulsion(1));
+                    P_T2 = sqrt(muon2.getimpulsion(0)*muon2.getimpulsion(0)+muon2.getimpulsion(1)*muon2.getimpulsion(1));
 
-                      double delta_x_neutralino=X-x;//par  rapport au centre de gravite de la zone de desintegration
-                      double delta_y_neutralino=Y+DY/2.0+epsilon-y; //par rapport au point le plus haut de la zone de detection
-                      double delta_z_neutralino=Z-z;//par  rapport au centre de gravite de la zone de desintegration
-
-
-                      bool muon1_detect=true,muon2_detect=true;
-                      int j=0;
-                      while((muon1_detect||muon2_detect) && j<5){ //boucle sur les cinqs plans de détection
-                          //decalages des particules filles par rapport au point de desintegration du neutralino au moment de passer a l'horizontale des detecteurs
-                          double dist_neutra_plan = (delta_y_neutralino-j*epsilon/4);
-
-                          double delta_x_muon2=dist_neutra_plan/muon2.getdirectioncar(1)*muon2.getdirectioncar(0);
-                          double delta_z_muon2=dist_neutra_plan/muon2.getdirectioncar(1)*muon2.getdirectioncar(2);
-                          double delta_x_muon1=dist_neutra_plan/muon1.getdirectioncar(1)*muon1.getdirectioncar(0);
-                          double delta_z_muon1=dist_neutra_plan/muon1.getdirectioncar(1)*muon1.getdirectioncar(2);
-
-                        //test du passage du muon1 a travers la zone de detection j
-                          if(((abs(delta_x_muon1+delta_x_neutralino)<DX/2)&(abs(delta_z_muon1+delta_z_neutralino)<DZ/2)) == false){muon1_detect=false;}
-                          else if(fmod(delta_x_muon1+delta_x_neutralino,10)<1){muon1_detect=false;}
-                          else if(fmod(delta_z_muon1+delta_z_neutralino,10)<1){muon1_detect=false;}
-
-                          //test du passage du muon2 a travers la zone de detection j
-                          if(((abs(delta_x_muon2+delta_x_neutralino)<DX/2)&(abs(delta_z_muon2+delta_z_neutralino)<DZ/2)) == false){muon2_detect=false;}
-                          else if(fmod(delta_x_muon2+delta_x_neutralino,10)<1){muon2_detect=false;}
-                          else if(fmod(delta_z_muon2+delta_z_neutralino,10)<1){muon2_detect=false;}
-                          j++;
-                        }
-                      if(muon2_detect && muon1_detect){
-                        histo_detect_mat.fill(k);
-                      }
+                    bool pas_point_mort = true;
+                    if (eta < 0.3 && eta > 0.2){
+                      double rand_val = unif_dist(generator);
+                      if (rand_val > 0.85){pas_point_mort = false;}
                     }
-
-                  }
-
-                //TEST DE DETECTION DES PARTICULES FILLES DU NEUTRALINO PAR LE TRAJECTOGRAPHE DE CMS
-                if(currentevent.getpart(i).detectCMS(R,H,c_tau)==true){
-                  std::vector<double> coord_car_neutralino (3);
-                  for (int ii=0; ii<3; ii++){coord_car_neutralino[ii]=currentevent.getpart(i).getdirectioncar(ii)*currentevent.getpart(i).getbg()*c_tau;} //point de desintegration du neutralino
-
-                  vector<double> coord_cms_neutralino(3);
-                  coord_cms_neutralino = car_to_cms(coord_car_neutralino);
-                  double eta=abs(coord_cms_neutralino[2]);
-
-                  bool pt_mort=((eta<=1.5) || (eta>=1.7)); //exclu les particules se desintegrant dans le point mort du CMS
-                  if((eta<=2.5) && (coord_cms_neutralino[0]<=0.6) && pt_mort==true){
-                    double a1,a2,a3,a4,a5,a6,d;
-                    a1=-0.003775463;
-                    a2=2.62108e-5;
-                    a3=-1.05512e-07;
-                    a4=2.28586e-10;
-                    a5=-2.54327e-13;
-                    a6=1.13477e-16;
-
-                    d = coord_cms_neutralino[0]*1000.0;
-
-                    double rand_val = unif_dist(generator);
-
-                    if(rand_val < 1+d*(a1+d*(a2+d*(a3+d*(a4+d*(a5+d*a6)))))){histo_detect_cms.fill(k);}
+                    if ( P_T1 > 20 && P_T2 > 20 && pas_point_mort){histo_detect_cms_muon.fill(k);}
                   }
                 }
-
-                //TEST DE DETECTION DES PARTICULES FILLES DU NEUTRALINO PAR LE SYSTEME A MUON DE CMS
-
               }
             }
           }
@@ -255,9 +291,13 @@ int main(int argc, char** argv) {
   histogramme histo_mat_mean(ctmin,ctmax+ctpas/2,floor(Nbins/mult)+1);
 
   //sortie du nombre d'evenements dans lequel il y a 0,1,2 decay de particule
-  histogramme_decay<<"#"<<" ctau  MAT  CMS"<<endl;
+  histogramme_decay<<"#"<<" ctau  MAT  MAT_simple  CMS  CMS_muon"<<endl;
     for(int i=0;i<Nbins-1;i++){
-      histogramme_decay<<left<<setw(5)<<setfill(' ')<<setprecision(10)<<ctmin+i*ctpas<<left<<setw(10)<<setfill(' ')<<setprecision(10)<<double(histo_detect_mat.getbins(i))/(2*n_pts)<<left<<setw(8)<<setfill(' ')<<setprecision(10)<<double(histo_detect_cms.getbins(i))/(2*n_pts)<<endl;
+      histogramme_decay<<left<<setw(5)<<setfill(' ')<<setprecision(10)<<ctmin+i*ctpas;
+      histogramme_decay<<left<<setw(12)<<setfill(' ')<<setprecision(10)<<double(histo_detect_mat.getbins(i))/(2*n_pts);
+      histogramme_decay<<left<<setw(12)<<setfill(' ')<<setprecision(10)<<double(histo_detect_mat_simple.getbins(i))/(2*n_pts);
+      histogramme_decay<<left<<setw(12)<<setfill(' ')<<setprecision(10)<<double(histo_detect_cms.getbins(i))/(2*n_pts);
+      histogramme_decay<<left<<setw(12)<<setfill(' ')<<setprecision(10)<<double(histo_detect_cms_muon.getbins(i))/(2*n_pts)<<endl;
 
       for (int j=1; j<=histo_detect_mat.getbins(i); j++ ){
         histo_mat_mean.fill(ctmin+i*ctpas);
@@ -286,5 +326,6 @@ int main(int argc, char** argv) {
    cout<<"temps de run du run en cours: "<<t_cpu_run<<endl;
    cout<<"temps de run total: "<<t_cpu<<endl;
  }
+
  return 0;
  }
