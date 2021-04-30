@@ -6,12 +6,12 @@ Le test de la detection de ces désintégrations par CMS et MATHUSLA est réalis
   Pour l'utilisation :
   1.  utiliser le makefile pour compiler les fichiers sources ainsi que les deux programmes principaux
   2.  éventuellement utiliser le makefile pour supprimer les fichiers temporaires utilisés à l'instalation.
-  3.  s'assure d'avoir les fichier d'entrée (cf cfi-dessous)
+  3.  s'assurer d'avoir les fichier d'entrée (cf cfi-dessous)
   4.  utiliser events2.exe pour produir les donnes d'efficacité de reproduction en fonction du ctau du neutralino
   5.  éventuellement utiliser Mean.exe pour traiter les données de plusieurs runs de events.exe
 
 #Remarques:
-  - le système de coordonees utilisé est un système de coordonees cartésiennes centrée sur le point d'interaction des faisceaux
+  - le système de coordonees utilisé est un système de coordonees cartésiennes centrées sur le point d'interaction des faisceaux
     du LHC (ou HL-LHC) au coeur de CMS. L'axe z est l'axe tangeant au parcour du faisceau au point d'interaction, orienté dans
     le sens trigonométrique le long de l'anneau du LHC. L'axe x est dans le plan horizontal dirigé vers le centre de l'anneau
     du LHC. Enfin, l'axe Y est orienté verticalement vers le haut.
