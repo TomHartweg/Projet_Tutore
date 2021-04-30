@@ -1,9 +1,76 @@
+  Ce programme permet de simuler la detection de neutralinos par CMS et le futur détecteur MATHUSLA dans le contexte du HL-LHC.
+Pour cela, il utilise des simulations de collision de protons des faisceaux du futur HL-LHC produisant des paires de neutralinos.
+Ceux-ci se désintégrant en deux muons et un neutrino électronique. Ces simulations sont réalisée à l'aide du logiciel MAdGraph
+Le test de la detection de ces désintégrations par CMS et MATHUSLA est réalisée avec une approche dite de "fast computation".
+
+  Pour l'utilisation :
+  1.  utiliser le makefile pour compiler les fichiers sources ainsi que les deux programmes principaux
+  2.  éventuellement utiliser le makefile pour supprimer les fichiers temporaires utilisés à l'instalation.
+  3.  s'assure d'avoir les fichier d'entrée (cf cfi-dessous)
+  4.  utiliser events2.exe pour produir les donnes d'efficacité de reproduction en fonction du ctau du neutralino
+  5.  éventuellement utiliser Mean.exe pour traiter les données de plusieurs runs de events.exe
+
+#Remarques:
+  - le système de coordonees utilisé est un système de coordonees cartésiennes centrée sur le point d'interaction des faisceaux
+    du LHC (ou HL-LHC) au coeur de CMS. L'axe z est l'axe tangeant au parcour du faisceau au point d'interaction, orienté dans
+    le sens trigonométrique le long de l'anneau du LHC. L'axe x est dans le plan horizontal dirigé vers le centre de l'anneau
+    du LHC. Enfin, l'axe Y est orienté verticalement vers le haut.
+
+
 #makefile:
-  #make all = compile tous les fichires non compilés puis le "events2.cpp"
-  #make clean = delete tous les .o
+    #make all = compile tous les fichiers sources non compilés puis le "events2.cpp" et le "Mean.cpp"
+    #make clean = supprime tous les .o
+
+#events2.exe :
+  #Programme principal. Permet de simuler la detection des neutralinos par CMS et MATHUSLA. Utilise les deux fichiers d'entrée décrits
+   ci-dessous (#fichier d'entree). La sortie des fichiers de données se fait dans "DATAs/donnees".
+   Le programme va attribuer une valeur aléatoire k à chaques neutralino selon une distribution exponentielle de paramètre 1. Cette valeur
+   sert de temps de vie "normé". Puis pour chaque c_tau testé, le temps avant désintégration de chaques neutralino sera c_tau*k. De fait,
+   chaques runs du programme produira des résultats légèrements différents. Pour étudiers plusieurs runs, voir le paragraphe "#traitement des données"
+
+  #Différents appels possibles :
+    -> sans arguments : ne fait qu'un run et stock les données dans "DATAs/donnees/part_decay_0"
+    -> avec un entier i en argument : fait les runs de 0 à i et les stock dans les fichiers "part_decay" correspondants
+    -> avec deux entier i et j (i <= j) : fait les runs de i à j
+
+    ex : "./events2.exe 3 5" va effectuer les runs 3 à 5 et écrire les données dans les fichiers "DATAs/donnes/part_decay_" 3,4 et 5
+
+  #fichiers de sortie: la sortie se fait sous la forme d'un tableau à 5 colonnes :
+    -> la première est le ctau testé.
+    -> les quatres autres décrivent l'efficacité de reproduction des différents detecteurs :
+      1. trajectographe CMS
+      2. système muon CMS_muon
+      3. MATHUSLA en prenant en compte la modularité des detecteurs
+      4. MATHUSLA en supposant une efficactié de reproduction de 100% quand un neutralino se désintègre dans le volume de désintégration
 
 #fichier d'entree:
-#"parametre.in" : syntaxe (R,H,DX,DY,DZ,X,Y,Z,epsilon,ctaumin,ctaumax,ctaupas)
+  #"parametre.in" :
+    #syntaxe (R,H,R_muon,H_muon,DX,DY,DZ,X,Y,Z,epsilon,ctaumin,ctaumax,ctaupas)
+      CMS:
+      -> R : rayon externe du trajectographe (m)
+      -> H : longueur du trajectographe (m)
+      -> R_muon : rayon interne du système à muon
+      -> H_muon : longueur du sysrème à muon
+      MATHUSLA:
+      -> DX,DY,DZ : dimensions du volume de désintégration selon les axes x,y et z
+      -> X,Y,Z : coordonnées du barycentre duvolume de désintégration
+      -> epsilon : espacement entre les plaques de détection du detecteur situé au dessus du volume de désintégration
+      paramètre de test :
+      -> ctaumin, ctaumax : min et max de l'interval des ctau qui sera testé
+      -> ctaupas : pas d'incrementation pour les ctau
 
-#fichier a executer:
-#"events2.cpp" g++ -o events2.exe events2.cpp
+    #Remarque : le fichier est pré-rempli avec les données de la configuration actuelle de CMS (CF article
+      https://iopscience.iop.org/article/10.1088/1748-0221/12/01/C01048) et la dernière proposition de géométrie pour MATHUSLA (CF article https://arxiv.org/abs/2009.01693)
+
+  #"unweighted_events_*" : ces quatres fichiers sont les simulations de collision et désintégration produites par MadGraph. Les fichiers sont téléchargeables ici :
+    -> https://drive.google.com/u/0/uc?id=10BJi82V_AQFoZMOODT2cOkZ4F9WX5F8s&export=download
+    décompresser et placer les quatres fichiers dans detection_CMS_MAT  (/!\ les quatres fichiers font 1,3 Go chacuns une fois décompréssés)
+
+#traitement des données : le dossier DATAs est doté d'un executable "Mean.exe" et d'un script gnuplot "mean_commands.gnu" :
+  #Mean.exe : cet executable permet de calculer la moyenne et l'écart type de chaques valeurs de plusieurs runs produits par events2.exe.
+    #appel : mettre en argument d'appel le nombre N de fichier à lire. Le programme fera les statistiques sur les fichiers "donnes/part_decay_" de 1 à N
+    #fichier de sortie : la sortie se fait dans le fichier "DATAs/result_mean.dat" et a la même structure que les fichiers "part_decay_". Chaque colonne
+     avec une colonne représnete alors la moyenne des runs traités, et sont suivi d'une colonne supplémentaire donnant l'écart type.
+
+  #mean_commands.gnu : script a appeler avec gnuplot permettant de créer automatiqement un graphique présentant les donnees du fichier de sortie
+   de Mean.exe. Il sauvegard aussi ce graphique dans "DATAs" au format .png

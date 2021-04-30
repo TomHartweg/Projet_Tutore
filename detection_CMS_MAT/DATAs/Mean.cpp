@@ -8,12 +8,19 @@
 #include <ctime>
 using namespace std;
 
-int main() {
+int main(int argc, char** argv) {
   ifstream data;
   ifstream parametre("../parametre.in");
   ofstream result("result_mean.dat");
 
-  int nb_fichier = 100;
+  if (argc != 2){
+    cout<<"nombre d'arguments en entree non conforme : "<<endl;
+    cout<<" -> mettre en argument un entier correspondants au nombre de fichier à lire"<<endl;
+    cout<<"  (lire readme pour plus de détails)"<<endl;
+    return(0);
+  }
+
+  int nb_fichier = stoi(argv[1]);
   int size_data;
 
 
